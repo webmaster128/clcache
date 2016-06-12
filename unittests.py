@@ -96,6 +96,12 @@ class TestSplitCommandsFile(BaseTest):
         self._genericTest(r'/Fo"C:\out dir\\" /nologo', [r'/FoC:\out dir' '\\', r'/nologo'])
         self._genericTest(r'/c /Fo"C:\out dir\\" /nologo', ['/c', r'/FoC:\out dir' '\\', r'/nologo'])
 
+    def testDoubleQuotedWithSpace(self):
+        self._genericTest(r'"/Fo"some thing\main.obj""', [r'/Fosome thing\main.obj'])
+        self._genericTest(r'/c "/Fo"some thing\main.obj""', ['/c', r'/Fosome thing\main.obj'])
+        self._genericTest(r'"/Fo"some thing\main.obj"" /nologo', [r'/Fosome thing\main.obj', '/nologo'])
+        self._genericTest(r'/c "/Fo"some thing\main.obj"" /nologo', ['/c', r'/Fosome thing\main.obj', '/nologo'])
+
     def testVyachselavCase(self):
         self._genericTest(
             r'"-IC:\Program files\Some library" -DX=1 -DVERSION=\"1.0\" -I..\.. -I"..\..\lib" -DMYPATH=\"C:\Path\"',
