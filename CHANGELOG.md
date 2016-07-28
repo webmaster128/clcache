@@ -3,6 +3,9 @@ clcache changelog
 
 ## Upcoming release
 
+ * Rework manifests: use JSON to store manifests. This makes all existing manifests
+   invalid. Cleaning and clearing now removes old manifest files as well, so the old
+   .dat files are automatically removed.
  * Bugfix: When preprocessing was used together with an /Fo argument (which makes
    no sense), the handling was wrong.
  * Bugfix: Properly handle /Fi arguments
