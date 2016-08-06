@@ -411,6 +411,86 @@ class TestSplitCommandsFile(unittest.TestCase):
         self._genericTest(r'\foo.cpp /c', [r'\foo.cpp', r'/c'])
 
 
+class TestAnalyzeEnvironment(unittest.TestCase):
+    def testEnvironOkay(self):
+        # pylint: disable=line-too-long
+        # Sample environment created by `python -c "import os; print(os.environ)"`
+        # in a Developer Command Prompt for VS2015
+        testEnvironment = {
+            'GO_AGENT_JAVA_HOME': 'C:\\Program Files (x86)\\Go Agent\\jre',
+            'LIB':'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB;C:\\Program Files (x86)\\Windows Kits\\10\\lib\\10.0.10240.0\\ucrt\\x86;C:\\Program Files (x86)\\WindowsKits\\NETFXSDK\\4.6.1\\lib\\um\\x86;C:\\Program Files (x86)\\Windows Kits\\8.1\\lib\\winv6.3\\um\\x86;',
+            'HOMEDRIVE': 'C:',
+            'COMSPEC': 'C:\\Windows\\system32\\cmd.exe',
+            'USERPROFILE': 'C:\\Users\\theguy',
+            'VISUALSTUDIOVERSION': '14.0',
+            'COMMONPROGRAMFILES': 'C:\\Program Files\\Common Files',
+            'LOGONSERVER': '\\\\THEGUY-CI-WINDOWS',
+            'DEVENVDIR': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\',
+            'APPDATA': 'C:\\Users\\theguy\\AppData\\Roaming',
+            'PROCESSOR_REVISION': '2d07',
+            'FRAMEWORKVERSION': 'v4.0.30319',
+            'OS': 'Windows_NT',
+            'UCRTVERSION': '10.0.10240.0',
+            'GO_SERVER': '127.0.0.1',
+            'WINDOWSSDKVERSION': '\\',
+            'COMPUTERNAME': 'THEGUY-CI-WINDOWS',
+            'FP_NO_HOST_CHECK': 'NO',
+            'USERNAME': 'theguy',
+            'WINDOWSSDK_EXECUTABLEPATH_X64': 'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6.1 Tools\\x64\\',
+            'WINDIR': 'C:\\Windows',
+            'NUMBER_OF_PROCESSORS': '4',
+            'HOME': 'C:\\Users\\theguy',
+            'VS120COMNTOOLS': 'C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\Common7\\Tools\\',
+            'LOCALAPPDATA': 'C:\\Users\\theguy\\AppData\\Local',
+            'SYSTEMROOT': 'C:\\Windows',
+            'FRAMEWORKDIR': 'C:\\Windows\\Microsoft.NET\\Framework\\',
+            'WIX': 'C:\\Program Files (x86)\\WiX Toolset v3.10\\',
+            'NETFXSDKDIR': 'C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.1\\',
+            'PATH': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\CommonExtensions\\Microsoft\\TestWindow;C:\\Program Files (x86)\\MSBuild\\14.0\\bin;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\IDE\\;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\BIN;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools;C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\VCPackages;C:\\Program Files (x86)\\HTML Help Workshop;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Team Tools\\Performance Tools;C:\\Program Files (x86)\\Windows Kits\\8.1\\bin\\x86;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6.1 Tools\\;C:\\Python34\\;C:\\Python34\\Scripts;C:\\jom\\bin;C:\\Perl\\site\\bin;C:\\Perl\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\qt\\bin;C:\\Users\\kullo\\bin\\depot_tools;C:\\Program Files (x86)\\CMake\\bin;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Git\\cmd;C:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;C:\\ProgramFiles\\Microsoft SQL Server\\110\\Tools\\Binn\\;C:\\Users\\kullo\\bin;C:\\Python34\\;C:\\Python34\\Scripts;C:\\jom\\bin;C:\\Perl\\site\\bin;C:\\Perl\\bin;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\qt\\bin;C:\\Users\\kullo\\bin\\depot_tools;C:\\Program Files (x86)\\CMake\\bin;C:\\Program Files\\Microsoft SQL Server\\120\\Tools\\Binn\\;C:\\Program Files\\Git\\cmd;C:\\Program Files (x86)\\Windows Kits\\8.1\\Windows Performance Toolkit\\;C:\\Program Files\\Microsoft SQL Server\\110\\Tools\\Binn\\',
+            'WINDOWSSDKLIBVERSION': 'winv6.3\\',
+            'USERDOMAIN': 'THEGUY-CI-WINDOWS',
+            'ALLUSERSPROFILE': 'C:\\ProgramData',
+            'TEMP': 'C:\\Users\\theguy\\AppData\\Local\\Temp\\2',
+            'PROCESSOR_LEVEL': '6',
+            'UNIVERSALCRTSDKDIR': 'C:\\Program Files (x86)\\Windows Kits\\10\\',
+            'USERDOMAIN_ROAMINGPROFILE': 'THEGUY-CI-WINDOWS',
+            'VCINSTALLDIR': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\',
+            'CLIENTNAME': 'laptitude',
+            'FRAMEWORK40VERSION': 'v4.0',
+            'PUBLIC': 'C:\\Users\\Public',
+            'FRAMEWORKDIR32': 'C:\\Windows\\Microsoft.NET\\Framework\\',
+            'WINDOWSSDK_EXECUTABLEPATH_X86': 'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.6.1 Tools\\',
+            'PROGRAMW6432': 'C:\\Program Files',
+            'HOMEPATH': '\\Users\\theguy',
+            'VS140COMNTOOLS': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\Common7\\Tools\\',
+            'GO_AGENT_DIR': 'C:\\Program Files (x86)\\Go Agent',
+            'VSINSTALLDIR': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\',
+            'PROGRAMDATA': 'C:\\ProgramData',
+            'PROGRAMFILES(X86)': 'C:\\Program Files (x86)',
+            'INCLUDE': 'C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\INCLUDE;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\INCLUDE;C:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.10240.0\\ucrt;C:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.1\\include\\um;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\\\shared;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\\\um;C:\\Program Files (x86)\\Windows Kits\\8.1\\include\\\\winrt;',
+            'WINDOWSSDKDIR': 'C:\\Program Files (x86)\\Windows Kits\\8.1\\',
+            'COMMONPROGRAMW6432': 'C:\\Program Files\\Common Files',
+            'SESSIONNAME': 'RDP-Tcp#77',
+            'SYSTEMDRIVE': 'C:',
+            'PROMPT': '$P$G',
+            'PROCESSOR_ARCHITECTURE': 'AMD64',
+            'FRAMEWORKVERSION32': 'v4.0.30319',
+            'PATHEXT': '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY',
+            'PROGRAMFILES': 'C:\\Program Files',
+            'PROCESSOR_IDENTIFIER': 'Intel64 Family 6 Model45 Stepping 7, GenuineIntel',
+            'LIBPATH': 'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\ATLMFC\\LIB;C:\\Program Files (x86)\\Windows Kits\\8.1\\References\\CommonConfiguration\\Neutral;\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;',
+            'WINDOWSLIBPATH': 'C:\\Program Files (x86)\\Windows Kits\\8.1\\References\\CommonConfiguration\\Neutral',
+            'COMMONPROGRAMFILES(X86)': 'C:\\Program Files (x86)\\Common Files',
+            'PSMODULEPATH': 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\',
+            'TMP': 'C:\\Users\\theguy\\AppData\\Local\\Temp\\2'
+        }
+
+        try:
+            RequestAnalyzer.analyzeEnvironment(testEnvironment)
+        except AnalysisError:
+            self.fail("analyzeEnvironment() raised unexpected AnalysisError.")
+
+
 class TestAnalyzeCommandLine(unittest.TestCase):
     def _testSourceFilesOk(self, cmdLine):
         try:
