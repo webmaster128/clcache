@@ -932,7 +932,7 @@ class ArgumentT4(Argument):
     pass
 
 
-class CommandLineAnalyzer(object):
+class RequestAnalyzer(object):
 
     @staticmethod
     def _getParameterizedArgumentType(cmdLineArgument):
@@ -970,7 +970,7 @@ class CommandLineAnalyzer(object):
 
             # Plain arguments starting with / or -
             if cmdLineArgument.startswith('/') or cmdLineArgument.startswith('-'):
-                arg = CommandLineAnalyzer._getParameterizedArgumentType(cmdLineArgument)
+                arg = RequestAnalyzer._getParameterizedArgumentType(cmdLineArgument)
                 if arg is not None:
                     if isinstance(arg, ArgumentT1):
                         value = cmdLineArgument[len(arg) + 1:]
@@ -1007,8 +1007,8 @@ class CommandLineAnalyzer(object):
         return dict(arguments), inputFiles
 
     @staticmethod
-    def analyze(cmdline):
-        options, inputFiles = CommandLineAnalyzer.parseArgumentsAndInputFiles(cmdline)
+    def analyzeCommandLine(cmdline):
+        options, inputFiles = RequestAnalyzer.parseArgumentsAndInputFiles(cmdline)
         compl = False
         if 'Tp' in options:
             inputFiles += options['Tp']
@@ -1427,7 +1427,7 @@ def processCompileRequest(cache, compiler, args):
     printTraceStatement("Expanded commandline '{0!s}'".format(cmdLine))
 
     try:
-        sourceFiles, objectFile = CommandLineAnalyzer.analyze(cmdLine)
+        sourceFiles, objectFile = RequestAnalyzer.analyzeCommandLine(cmdLine)
 
         if len(sourceFiles) > 1:
             return reinvokePerSourceFile(cmdLine, sourceFiles), '', ''

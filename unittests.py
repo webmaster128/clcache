@@ -16,11 +16,11 @@ import unittest
 
 import clcache
 from clcache import (
-    CommandLineAnalyzer,
     CompilerArtifactsRepository,
     Configuration,
     Manifest,
     ManifestRepository,
+    RequestAnalyzer,
     Statistics,
 )
 from clcache import (
@@ -411,20 +411,20 @@ class TestSplitCommandsFile(unittest.TestCase):
 class TestAnalyzeCommandLine(unittest.TestCase):
     def _testSourceFilesOk(self, cmdLine):
         try:
-            CommandLineAnalyzer.analyze(cmdLine)
+            RequestAnalyzer.analyzeCommandLine(cmdLine)
         except AnalysisError as err:
             if isinstance(err, NoSourceFileError):
-                self.fail("analyze() unexpectedly raised an NoSourceFileError")
+                self.fail("analyzeCommandLine() unexpectedly raised an NoSourceFileError")
             else:
                 # We just want to know if we got a proper source file.
                 # Other AnalysisErrors are ignored.
                 pass
 
     def _testFailure(self, cmdLine, expectedExceptionClass):
-        self.assertRaises(expectedExceptionClass, lambda: CommandLineAnalyzer.analyze(cmdLine))
+        self.assertRaises(expectedExceptionClass, lambda: RequestAnalyzer.analyzeCommandLine(cmdLine))
 
     def _testFull(self, cmdLine, expectedSourceFiles, expectedOutputFile):
-        sourceFiles, outputFile = CommandLineAnalyzer.analyze(cmdLine)
+        sourceFiles, outputFile = RequestAnalyzer.analyzeCommandLine(cmdLine)
         self.assertEqual(sourceFiles, expectedSourceFiles)
         self.assertEqual(outputFile, expectedOutputFile)
 
@@ -440,7 +440,7 @@ class TestAnalyzeCommandLine(unittest.TestCase):
         self._testFailure(cmdLine, CalledForPreprocessingError)
 
     def _testArgInfiles(self, cmdLine, expectedArguments, expectedInputFiles):
-        arguments, inputFiles = CommandLineAnalyzer.parseArgumentsAndInputFiles(cmdLine)
+        arguments, inputFiles = RequestAnalyzer.parseArgumentsAndInputFiles(cmdLine)
         self.assertEqual(arguments, expectedArguments)
         self.assertEqual(inputFiles, expectedInputFiles)
 
