@@ -121,6 +121,7 @@ class TestStatistics(unittest.TestCase):
     def testHitCounts(self):
         stats = Statistics(os.path.join(ASSETS_DIR, "statistics", "testHitCounts.json"))
         with stats as s:
+            self.assertEqual(s.numCallsWithUnsupportedEnvironment(), 0)
             self.assertEqual(s.numCallsWithInvalidArgument(), 0)
             self.assertEqual(s.numCallsWithoutSourceFile(), 0)
             self.assertEqual(s.numCallsWithMultipleSourceFiles(), 0)
@@ -135,6 +136,7 @@ class TestStatistics(unittest.TestCase):
             self.assertEqual(s.numCallsForPreprocessing(), 0)
 
             # Bump all by 1
+            s.registerCallWithUnsupportedEnvironment()
             s.registerCallWithInvalidArgument()
             s.registerCallWithoutSourceFile()
             s.registerCallWithMultipleSourceFiles()
@@ -148,6 +150,7 @@ class TestStatistics(unittest.TestCase):
             s.registerCacheMiss()
             s.registerCallForPreprocessing()
 
+            self.assertEqual(s.numCallsWithUnsupportedEnvironment(), 1)
             self.assertEqual(s.numCallsWithInvalidArgument(), 1)
             self.assertEqual(s.numCallsWithoutSourceFile(), 1)
             self.assertEqual(s.numCallsWithMultipleSourceFiles(), 1)

@@ -487,6 +487,7 @@ class Configuration(object):
 
 
 class Statistics(object):
+    CALLS_WITH_UNSUPPORTED_ENVIRONMENT = "CallsWithUnsupportedEnvironment"
     CALLS_WITH_INVALID_ARGUMENT = "CallsWithInvalidArgument"
     CALLS_WITHOUT_SOURCE_FILE = "CallsWithoutSourceFile"
     CALLS_WITH_MULTIPLE_SOURCE_FILES = "CallsWithMultipleSourceFiles"
@@ -503,6 +504,7 @@ class Statistics(object):
     CACHE_SIZE = "CacheSize"
 
     RESETTABLE_KEYS = {
+        CALLS_WITH_UNSUPPORTED_ENVIRONMENT,
         CALLS_WITH_INVALID_ARGUMENT,
         CALLS_WITHOUT_SOURCE_FILE,
         CALLS_WITH_MULTIPLE_SOURCE_FILES,
@@ -538,6 +540,12 @@ class Statistics(object):
 
     def __eq__(self, other):
         return type(self) is type(other) and self.__dict__ == other.__dict__
+
+    def numCallsWithUnsupportedEnvironment(self):
+        return self._stats[Statistics.CALLS_WITH_UNSUPPORTED_ENVIRONMENT]
+
+    def registerCallWithUnsupportedEnvironment(self):
+        self._stats[Statistics.CALLS_WITH_UNSUPPORTED_ENVIRONMENT] += 1
 
     def numCallsWithInvalidArgument(self):
         return self._stats[Statistics.CALLS_WITH_INVALID_ARGUMENT]
@@ -642,6 +650,11 @@ class Statistics(object):
 class AnalysisError(Exception):
     pass
 
+
+class UnsupportedEnvironmentError(AnalysisError):
+    def __init__(self, message, environment):
+        super(UnsupportedEnvironmentError, self).__init__(message)
+        self.environment = environment.copy()
 
 class NoSourceFileError(AnalysisError):
     pass
@@ -1054,6 +1067,13 @@ class RequestAnalyzer(object):
         printTraceStatement("Compiler object file: {}".format(objectFile))
         return inputFiles, objectFile
 
+    @staticmethod
+    def analyzeEnvironment(environment):
+        for testKey in ['CL', '_CL_']:
+            if testKey in environment:
+                raise UnsupportedEnvironmentError("Unsupported environment variable: {}".format(testKey),
+                                                  environment)
+
 
 def invokeRealCompiler(compilerBinary, cmdLine, captureOutput=False):
     realCmdline = [compilerBinary] + cmdLine
@@ -1180,6 +1200,7 @@ clcache statistics:
     header changed             : {}
     source changed             : {}
   passed to real compiler
+    called w/ unsupported env  : {}
     called w/ invalid argument : {}
     called for preprocessing   : {}
     called for linking         : {}
@@ -1199,6 +1220,7 @@ clcache statistics:
             stats.numEvictedMisses(),
             stats.numHeaderChangedMisses(),
             stats.numSourceChangedMisses(),
+            stats.numCallsWithUnsupportedEnvironment(),
             stats.numCallsWithInvalidArgument(),
             stats.numCallsForPreprocessing(),
             stats.numCallsForLinking(),
@@ -1427,6 +1449,7 @@ def processCompileRequest(cache, compiler, args):
     printTraceStatement("Expanded commandline '{0!s}'".format(cmdLine))
 
     try:
+        RequestAnalyzer.analyzeEnvironment(os.environ)
         sourceFiles, objectFile = RequestAnalyzer.analyzeCommandLine(cmdLine)
 
         if len(sourceFiles) > 1:
@@ -1437,6 +1460,9 @@ def processCompileRequest(cache, compiler, args):
                 return processNoDirect(cache, objectFile, compiler, cmdLine)
             else:
                 return processDirect(cache, objectFile, compiler, cmdLine, sourceFiles[0])
+    except UnsupportedEnvironmentError as e:
+        printTraceStatement("Cannot cache invocation as: unsupported environment ({})".format(e.environment))
+        updateCacheStatistics(cache, Statistics.registerCallWithUnsupportedEnvironment)
     except InvalidArgumentError:
         printTraceStatement("Cannot cache invocation as {}: invalid argument".format(cmdLine))
         updateCacheStatistics(cache, Statistics.registerCallWithInvalidArgument)
