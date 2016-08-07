@@ -640,6 +640,54 @@ class TestBasedir(unittest.TestCase):
                     self.assertEqual(stats.numCacheHits(), 1)
 
 
+class TestEnvironment(unittest.TestCase):
+    def testEnvironmentOk(self):
+        with cd(os.path.join(ASSETS_DIR)), tempfile.TemporaryDirectory() as tempDir:
+            cache = clcache.Cache(tempDir)
+
+            with cache.statistics as stats:
+                self.assertEqual(stats.numCacheEntries(), 0)
+                self.assertEqual(stats.numCallsWithUnsupportedEnvironment(), 0)
+
+            cmd = CLCACHE_CMD + ["/nologo", "/EHsc", "/c", "minimal.cpp"]
+            subprocess.check_call(cmd, env=dict(os.environ, CLCACHE_DIR=tempDir))
+
+            with cache.statistics as stats:
+                self.assertEqual(stats.numCacheEntries(), 1)
+                self.assertEqual(stats.numCallsWithUnsupportedEnvironment(), 0)
+
+    def testEnvironmentCl(self):
+        compileCmd = CLCACHE_CMD + ["/nologo", "/EHsc", "/c", os.path.join(ASSETS_DIR, "minimal.cpp")]
+
+        # CL
+        with tempfile.TemporaryDirectory() as tempDir:
+            cache = clcache.Cache(tempDir)
+
+            with cache.statistics as stats:
+                self.assertEqual(stats.numCacheEntries(), 0)
+                self.assertEqual(stats.numCallsWithUnsupportedEnvironment(), 0)
+
+            subprocess.check_call(compileCmd, env=dict(os.environ, CLCACHE_DIR=tempDir, CL="/I."))
+
+            with cache.statistics as stats:
+                self.assertEqual(stats.numCacheEntries(), 0)
+                self.assertEqual(stats.numCallsWithUnsupportedEnvironment(), 1)
+
+        # _CL_
+        with tempfile.TemporaryDirectory() as tempDir:
+            cache = clcache.Cache(tempDir)
+
+            with cache.statistics as stats:
+                self.assertEqual(stats.numCacheEntries(), 0)
+                self.assertEqual(stats.numCallsWithUnsupportedEnvironment(), 0)
+
+            subprocess.check_call(compileCmd, env=dict(os.environ, CLCACHE_DIR=tempDir, _CL_="/I."))
+
+            with cache.statistics as stats:
+                self.assertEqual(stats.numCacheEntries(), 0)
+                self.assertEqual(stats.numCallsWithUnsupportedEnvironment(), 1)
+
+
 if __name__ == '__main__':
     unittest.TestCase.longMessage = True
     unittest.main()
