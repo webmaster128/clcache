@@ -30,6 +30,7 @@ from clcache import (
     InvalidArgumentError,
     MultipleSourceFilesComplexError,
     NoSourceFileError,
+    UnsupportedEnvironmentError,
 )
 
 
@@ -418,6 +419,9 @@ class TestAnalyzeEnvironment(unittest.TestCase):
         except AnalysisError:
             self.fail("analyzeEnvironment() raised unexpected AnalysisError.")
 
+    def _testException(self, env, expectedExceptionClass):
+        self.assertRaises(expectedExceptionClass, lambda: RequestAnalyzer.analyzeEnvironment(env))
+
     def testEnvironOkay(self):
         # pylint: disable=line-too-long
         # Sample environment created by `python -c "import os; print(os.environ)"`
@@ -491,6 +495,16 @@ class TestAnalyzeEnvironment(unittest.TestCase):
             'TMP': 'C:\\Users\\theguy\\AppData\\Local\\Temp\\2'
         }
         self._testNoException(testEnvironment)
+
+    def testEnvironEmptyCl(self):
+        # Give user the chance to clear the env variables by setting them to the empty string.
+        # Given the semantics of CL and _CL_ this is equivalent to unsetting them.
+        for environment in [{'CL': ''}, {'_CL_': ''}]:
+            self._testNoException(environment)
+
+    def testEnvironClSet(self):
+        for env in [{'CL': '123'}, {'_CL_': '123'}]:
+            self._testException(env, UnsupportedEnvironmentError)
 
 
 class TestAnalyzeCommandLine(unittest.TestCase):
