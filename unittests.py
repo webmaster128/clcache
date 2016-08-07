@@ -412,6 +412,12 @@ class TestSplitCommandsFile(unittest.TestCase):
 
 
 class TestAnalyzeEnvironment(unittest.TestCase):
+    def _testNoException(self, environment):
+        try:
+            RequestAnalyzer.analyzeEnvironment(environment)
+        except AnalysisError:
+            self.fail("analyzeEnvironment() raised unexpected AnalysisError.")
+
     def testEnvironOkay(self):
         # pylint: disable=line-too-long
         # Sample environment created by `python -c "import os; print(os.environ)"`
@@ -484,11 +490,7 @@ class TestAnalyzeEnvironment(unittest.TestCase):
             'PSMODULEPATH': 'C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules\\',
             'TMP': 'C:\\Users\\theguy\\AppData\\Local\\Temp\\2'
         }
-
-        try:
-            RequestAnalyzer.analyzeEnvironment(testEnvironment)
-        except AnalysisError:
-            self.fail("analyzeEnvironment() raised unexpected AnalysisError.")
+        self._testNoException(testEnvironment)
 
 
 class TestAnalyzeCommandLine(unittest.TestCase):
