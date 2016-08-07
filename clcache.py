@@ -1069,9 +1069,9 @@ class RequestAnalyzer(object):
 
     @staticmethod
     def analyzeEnvironment(environment):
-        for testKey in ['CL', '_CL_']:
-            if testKey in environment:
-                raise UnsupportedEnvironmentError("Unsupported environment variable: {}".format(testKey),
+        for varName in ['CL', '_CL_']:
+            if varName in environment and environment[varName]:
+                raise UnsupportedEnvironmentError("Unsupported environment variable: {}".format(varName),
                                                   environment)
 
 
