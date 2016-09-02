@@ -66,10 +66,12 @@ def benchmark(title):
 
 def reset(log):
     if os.path.exists("build"):
-        print("Removing build dir ...", file=log)
+        log.write("Removing build dir ...\n")
+        log.flush()
         shutil.rmtree("build")
 
-    print("Configuring Botan ...", file=log)
+    log.write("Configuring Botan ...\n")
+    log.flush()
     subprocess.check_call([
         PYTHON_BINARY,
         "configure.py",
