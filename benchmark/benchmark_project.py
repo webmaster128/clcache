@@ -56,12 +56,13 @@ def cd(targetDirectory):
 @contextmanager
 def benchmark(title):
     start = time.time()
-    try:
-        yield
-    finally:
-        end = time.time()
-        s = end - start
-        print('Runtime {}: {}s'.format(title, round(s)))
+
+    yield # Execute code block in 'with'. If an exception occurs, we stop here.
+
+    end = time.time()
+    s = end - start
+    print('Runtime {}: {}s'.format(title, round(s)))
+
 
 def reset(log):
     if os.path.exists("build"):
