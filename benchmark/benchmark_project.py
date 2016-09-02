@@ -64,8 +64,9 @@ def benchmark(title):
         print('Runtime {}: {}s'.format(title, round(s)))
 
 def reset(log):
-    print("Removing build dir ...", file=log)
-    shutil.rmtree("build")
+    if os.path.exists("build"):
+        print("Removing build dir ...", file=log)
+        shutil.rmtree("build")
 
     print("Configuring Botan ...", file=log)
     subprocess.check_call([
