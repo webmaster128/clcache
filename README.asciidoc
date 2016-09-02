@@ -62,7 +62,7 @@ Alternative installation via clcache.bat
 This method is especially handy when there are multiple Python installations
 on a system.
 
-Create a clcache.bat and put it in a directory in PATH (e.g. %HOME%\bin):
+Create a clcache.bat and put it in a directory in PATH (e.g. %USERPROFILE%\bin):
 
     @echo off
     @setlocal
