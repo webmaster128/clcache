@@ -2,7 +2,6 @@ from contextlib import contextmanager
 import multiprocessing
 import os
 import subprocess
-import tempfile
 import time
 import urllib.request
 import shutil
@@ -16,6 +15,8 @@ CLCACHE_CMD = [PYTHON_BINARY, CLCACHE_SCRIPT]
 
 PROJECT_URL = "https://github.com/randombit/botan/archive/1.11.31.zip"
 PROJECT_ZIP_FILENAME = "botan.zip"
+
+TMP_DIR = os.path.join(SCRIPT_DIR, "botan_tmp")
 
 WORKING_DIR = os.getcwd()
 JOBS = multiprocessing.cpu_count()
@@ -80,11 +81,16 @@ def reset(log):
         "--enable-modules=tls,auto_rng", # add auto_rng because of bug https://github.com/randombit/botan/issues/615
     ], stdout=log)
 
+
 if __name__ == '__main__':
     print("Running {} parallel jobs".format(JOBS))
 
     with open("log.txt", "w") as logfile:
-        with tempfile.TemporaryDirectory(prefix=os.path.join(SCRIPT_DIR, "botan_")) as tmpDir, cd(tmpDir):
+        if os.path.exists(TMP_DIR):
+            shutil.rmtree(TMP_DIR)
+        os.mkdir(TMP_DIR)
+
+        with cd(TMP_DIR):
             ensure_downloaded(PROJECT_URL, os.path.join(WORKING_DIR, PROJECT_ZIP_FILENAME))
             root_folder_name = extract(os.path.join(WORKING_DIR, PROJECT_ZIP_FILENAME), ".")
 
